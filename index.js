@@ -62,10 +62,20 @@ async function run() {
    })
 
 // add Toy
-app.get('/addToys',async(req,res)=>{
-  const result =await addToyCollection.find().toArray();
-  res.send(result);
-})
+
+
+
+app.get('/addToys', async (req, res) => {
+  try {
+    const { email } = req.query;
+    const query = email ? { email } : {};
+    const result = await addToyCollection.find(query).toArray();
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Failed to retrieve toys' });
+  }
+});
 
 
 app.post('/addToys', async (req, res) => {
@@ -79,6 +89,43 @@ app.post('/addToys', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to add toy' });
   }
 });
+
+// app.get('/addToys/:id',async(req,res)=>{
+//   const id = req.params.id;
+//   const query ={_id : new ObjectId(id)}
+//   const result =await addToyCollection.findOne(query);
+//   res.send(result);
+// })
+// update
+app.get('/addToys/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await addToyCollection.findOne(query);
+  res.send(result);
+});
+
+app.put('/addToys/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const updatedData = req.body; // Assuming the updated toy data is sent in the request body
+
+  // Update the toy data in the database
+  const result = await addToyCollection.updateOne(query, { $set: updatedData });
+
+  if (result.modifiedCount > 0) {
+    res.send({ message: 'Toy updated successfully' });
+  } else {
+    res.status(404).send({ error: 'Toy not found' });
+  }
+});
+
+
+app.delete('/addToys/:id',async(req,res)=>{
+  const id = req.params.id;
+  const query ={_id: new ObjectId(id)};
+  const result =await addToyCollection.deleteOne(query);
+  res.send(result)
+})
 
 
 
